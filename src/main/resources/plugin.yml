@@ -1,0 +1,6 @@
+name: NetheriteElytra
+version: ${project.version}
+main: dertyp7214.de.Main
+api-version: 1.16
+authors: [ DerTyp7215 ]
+description: Elytra + Netherite = NetheriteElytra
