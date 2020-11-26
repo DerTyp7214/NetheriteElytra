@@ -7,7 +7,6 @@ import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
-import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.RecipeChoice
@@ -23,6 +22,8 @@ class Main : JavaPlugin() {
 
     companion object {
         val customSmithingRecipe: ArrayList<CustomSmithingRecipe> = ArrayList()
+        var plugin: JavaPlugin? = null
+            private set
     }
 
     private fun <K, V> Map<K, V>.toMultiMap(): Multimap<K, V> {
@@ -32,6 +33,8 @@ class Main : JavaPlugin() {
     }
 
     override fun onEnable() {
+
+        plugin = this
 
         customSmithingRecipe.add(CustomSmithingRecipe(SmithingRecipe(
                 NamespacedKey(this, "diamond_elytra"),
@@ -110,7 +113,6 @@ class Main : JavaPlugin() {
         return { meta ->
             meta.attributeModifiers = attributes
             meta.setDisplayName("${YELLOW}$name")
-            meta.addEnchant(Enchantment.DURABILITY, 5, true)
             if (meta is Damageable) meta.damage = 0
         }
     }
