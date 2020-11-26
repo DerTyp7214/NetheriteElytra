@@ -20,9 +20,16 @@ import org.bukkit.persistence.PersistentDataType
 import kotlin.math.max
 import kotlin.math.min
 
-class CustomSmithingRecipe(private val smithingRecipe: SmithingRecipe, private val customMeta: (meta: ItemMeta) -> Unit = {}) {
+class CustomSmithingRecipe(
+        private val smithingRecipe: SmithingRecipe,
+        private val customTag: NamespacedKey,
+        private val customMeta: (meta: ItemMeta) -> Unit = {},
+        private val customCheck: (event: InventoryClickEvent) -> Boolean = { true }
+) {
 
     companion object {
+        val DIAMOND_ELYTRA = NamespacedKey(Main.plugin!!, "diamondElytra")
+        val NETHERITE_ELYTRA = NamespacedKey(Main.plugin!!, "netheriteElytra")
         private val CUSTOM_DURABILITY = NamespacedKey(Main.plugin!!, "customDurability")
         private val CUSTOM_DURABILITY_MAX = NamespacedKey(Main.plugin!!, "customDurabilityMax")
 
@@ -54,12 +61,13 @@ class CustomSmithingRecipe(private val smithingRecipe: SmithingRecipe, private v
                 val item1 = clickedInventory.getItem(1)
                 val item2 = clickedInventory.getItem(2)
 
-                if (item0?.type == smithingRecipe.base.itemStack.type && item1?.type == smithingRecipe.addition.itemStack.type && item2 != null) {
+                if (item0?.type == smithingRecipe.base.itemStack.type && item1?.type == smithingRecipe.addition.itemStack.type && item2 != null && customCheck(event)) {
                     item2.apply {
                         val meta = itemMeta
                         if (meta != null) {
                             meta.persistentDataContainer.set(CUSTOM_DURABILITY, PersistentDataType.INTEGER, item0.type.maxDurability.toInt())
                             meta.persistentDataContainer.set(CUSTOM_DURABILITY_MAX, PersistentDataType.INTEGER, item0.type.maxDurability.toInt())
+                            meta.persistentDataContainer.set(customTag, PersistentDataType.INTEGER, 1)
                             customMeta(meta)
                         }
                         itemMeta = meta
