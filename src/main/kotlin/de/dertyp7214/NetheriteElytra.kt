@@ -2,6 +2,7 @@ package de.dertyp7214
 
 import com.google.common.collect.Multimap
 import com.google.common.collect.MultimapBuilder
+import de.dertyp7214.CustomSmithingRecipe.Companion.DEFAULT_LORE
 import de.dertyp7214.CustomSmithingRecipe.Companion.DIAMOND_ELYTRA
 import de.dertyp7214.CustomSmithingRecipe.Companion.NETHERITE_ELYTRA
 import de.dertyp7214.CustomSmithingRecipe.Companion.NETHERITE_MULTITOOL
@@ -160,17 +161,22 @@ class NetheriteElytra : JavaPlugin() {
                             val toolComponent = tool
 
                             listOf(
-                                Triple(Tag.MINEABLE_PICKAXE, 9.0f, true),
-                                Triple(Tag.MINEABLE_AXE, 9.0f, true),
-                                Triple(Tag.MINEABLE_SHOVEL, 9.0f, true),
+                                Triple(Tag.MINEABLE_PICKAXE, null, true),
+                                Triple(Tag.MINEABLE_AXE, null, true),
+                                Triple(Tag.MINEABLE_SHOVEL, null, true),
                             ).forEach {
                                 toolComponent.addRule(it.first, it.second, it.third)
                             }
+
+                            toolComponent.defaultMiningSpeed = 9f
+                            toolComponent.damagePerBlock = 1
 
                             setTool(toolComponent)
                             lore = listOf(
                                 "Pickaxe, Axe and Shovel"
                             )
+
+                            persistentDataContainer.set(DEFAULT_LORE, PersistentDataType.STRING, "Pickaxe, Axe and Shovel")
 
                             setDisplayName("${ChatColor.YELLOW}Netherite Multitool")
                         }
