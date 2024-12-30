@@ -1,6 +1,9 @@
 package de.dertyp7214
 
+import org.bukkit.Bukkit
 import org.bukkit.ChatColor
+import org.bukkit.Material
+import org.bukkit.inventory.meta.ItemMeta
 import org.fusesource.jansi.Ansi
 
 fun String.ansi(color: Ansi.Color, reset: Boolean = true): String {
@@ -9,4 +12,8 @@ fun String.ansi(color: Ansi.Color, reset: Boolean = true): String {
 
 fun String.chatColor(color: ChatColor): String {
     return "${color}$this${ChatColor.RESET}"
+}
+
+fun newItemMeta(material: Material, block: ItemMeta.() -> Unit = {}): ItemMeta {
+    return Bukkit.getItemFactory().getItemMeta(material)!!.apply(block)
 }

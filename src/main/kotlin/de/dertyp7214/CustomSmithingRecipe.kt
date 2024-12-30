@@ -1,5 +1,6 @@
 package de.dertyp7214
 
+import de.dertyp7214.NetheriteElytra.Companion.plugin
 import net.md_5.bungee.api.ChatColor.WHITE
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
@@ -29,6 +30,7 @@ class CustomSmithingRecipe(
     companion object {
         val DIAMOND_ELYTRA = NamespacedKey(NetheriteElytra.plugin!!, "diamondElytra")
         val NETHERITE_ELYTRA = NamespacedKey(NetheriteElytra.plugin!!, "netheriteElytra")
+        val NETHERITE_MULTITOOL = NamespacedKey(NetheriteElytra.plugin!!, "netheriteMultitool")
         private val CUSTOM_DURABILITY = NamespacedKey(NetheriteElytra.plugin!!, "customDurability")
         private val CUSTOM_DURABILITY_MAX = NamespacedKey(NetheriteElytra.plugin!!, "customDurabilityMax")
 
@@ -61,13 +63,21 @@ class CustomSmithingRecipe(
                 val item2 = clickedInventory.getItem(3)
 
                 if (smithingRecipe.base!!.test(item0!!) && smithingRecipe.addition!!.test(item1!!) && item2 != null && customCheck(event)) {
-                    item2.apply {
+                    event.currentItem!!.apply {
                         val meta = itemMeta
                         if (meta != null) {
                             meta.persistentDataContainer.set(CUSTOM_DURABILITY, PersistentDataType.INTEGER, item0.type.maxDurability.toInt())
                             meta.persistentDataContainer.set(CUSTOM_DURABILITY_MAX, PersistentDataType.INTEGER, item0.type.maxDurability.toInt())
                             meta.persistentDataContainer.set(customTag, PersistentDataType.INTEGER, 1)
+
+                            listOf(item0.enchantments.toList(), item1.enchantments.toList()).flatten().forEach {
+                                meta.addEnchant(it.first, it.second, true)
+                            }
+
                             customMeta(meta)
+                            plugin!!.logger.info("0 Enchantments: ${item0.enchantments}")
+                            plugin!!.logger.info("1 Enchantments: ${item1.enchantments}")
+                            plugin!!.logger.info("2 Enchantments: ${item2.enchantments}")
                         }
                         itemMeta = meta
                     }

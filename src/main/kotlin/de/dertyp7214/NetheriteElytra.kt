@@ -4,9 +4,11 @@ import com.google.common.collect.Multimap
 import com.google.common.collect.MultimapBuilder
 import de.dertyp7214.CustomSmithingRecipe.Companion.DIAMOND_ELYTRA
 import de.dertyp7214.CustomSmithingRecipe.Companion.NETHERITE_ELYTRA
+import de.dertyp7214.CustomSmithingRecipe.Companion.NETHERITE_MULTITOOL
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.Tag
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.inventory.*
@@ -92,7 +94,11 @@ class NetheriteElytra : JavaPlugin() {
             CustomSmithingRecipe(
                 SmithingTransformRecipe(
                     NamespacedKey(this, "diamond_elytra"),
-                    ItemStack(Material.ELYTRA),
+                    ItemStack(Material.ELYTRA).apply {
+                        val meta = itemMeta
+                        if (meta != null) diamond(meta)
+                        itemMeta = meta
+                    },
                     RecipeChoice.MaterialChoice(Material.DIAMOND_BLOCK),
                     RecipeChoice.MaterialChoice(Material.DIAMOND_CHESTPLATE),
                     RecipeChoice.MaterialChoice(Material.ELYTRA)
@@ -105,7 +111,11 @@ class NetheriteElytra : JavaPlugin() {
             CustomSmithingRecipe(
                 SmithingTransformRecipe(
                     NamespacedKey(this, "netherite_elytra"),
-                    ItemStack(Material.ELYTRA),
+                    ItemStack(Material.ELYTRA).apply {
+                        val meta = itemMeta
+                        if (meta != null) netherite(meta)
+                        itemMeta = meta
+                    },
                     RecipeChoice.MaterialChoice(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE),
                     RecipeChoice.MaterialChoice(Material.NETHERITE_CHESTPLATE),
                     RecipeChoice.MaterialChoice(Material.ELYTRA)
@@ -118,7 +128,11 @@ class NetheriteElytra : JavaPlugin() {
             CustomSmithingRecipe(
                 SmithingTransformRecipe(
                     NamespacedKey(this, "diamond_elytra_to_netherite_elytra"),
-                    ItemStack(Material.ELYTRA),
+                    ItemStack(Material.ELYTRA).apply {
+                        val meta = itemMeta
+                        if (meta != null) netherite(meta)
+                        itemMeta = meta
+                    },
                     RecipeChoice.MaterialChoice(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE),
                     RecipeChoice.MaterialChoice(Material.DIAMOND_CHESTPLATE),
                     RecipeChoice.MaterialChoice(Material.ELYTRA)
@@ -133,10 +147,52 @@ class NetheriteElytra : JavaPlugin() {
                         item0?.type == Material.ELYTRA && item0.itemMeta?.persistentDataContainer?.has(
                             DIAMOND_ELYTRA,
                             PersistentDataType.INTEGER
-                        ) == true
-                    } else false
-                } else false).apply { if (!this) it.isCancelled = true }
+                        ) != true
+                    } else true
+                } else true).apply { if (!this) it.isCancelled = true }
             })
+        customSmithingRecipe.add(
+            CustomSmithingRecipe(
+                SmithingTransformRecipe(
+                    NamespacedKey(this, "netherite_multitool"),
+                    ItemStack(Material.NETHERITE_PICKAXE).apply {
+                        itemMeta = newItemMeta(Material.NETHERITE_PICKAXE) {
+                            val toolComponent = tool
+
+                            listOf(
+                                Triple(Tag.MINEABLE_PICKAXE, 9.0f, true),
+                                Triple(Tag.MINEABLE_AXE, 9.0f, true),
+                                Triple(Tag.MINEABLE_SHOVEL, 9.0f, true),
+                            ).forEach {
+                                toolComponent.addRule(it.first, it.second, it.third)
+                            }
+
+                            setTool(toolComponent)
+                            lore = listOf(
+                                "Pickaxe, Axe and Shovel"
+                            )
+
+                            setDisplayName("${ChatColor.YELLOW}Netherite Multitool")
+                        }
+                    },
+                    RecipeChoice.MaterialChoice(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE),
+                    RecipeChoice.MaterialChoice(Material.NETHERITE_PICKAXE),
+                    RecipeChoice.MaterialChoice(Material.NETHERITE_SHOVEL)
+                ),
+                NETHERITE_MULTITOOL,
+            ) {
+                val clickedInventory = it.clickedInventory
+                (if (clickedInventory is SmithingInventory) {
+                    if (it.rawSlot == 3) {
+                        val item0 = clickedInventory.getItem(1)
+                        item0?.type == Material.NETHERITE_PICKAXE && item0.itemMeta?.persistentDataContainer?.has(
+                            NETHERITE_MULTITOOL,
+                            PersistentDataType.INTEGER
+                        ) != true
+                    } else true
+                } else true).apply { if (!this) it.isCancelled = true }
+            }
+        )
 
         server.pluginManager.registerEvents(CustomSmithingRecipe.Event(customSmithingRecipe), this)
 
